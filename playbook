@@ -1,0 +1,49 @@
+---
+- hosts: localhost
+  gather_facts: False
+
+  tasks:
+
+    - name: Provision a set of instances
+      ec2:
+         key_name: my-key
+         region: eu-central-1
+         group: EC2SecurityGroup
+         instance_type: t2.micro
+         image: ami-0e342d72b12109f91
+         volumes:
+           - device_name: /dev/sda1
+             volume_type: gp2
+             volume_size: 12
+         wait: true
+         exact_count: 1
+         count_tag:
+            Name: Test
+         instance_tags:
+            Name: Test
+      register: ec2
+    - name: Add all instance public IPs to host group
+      add_host: hostname={{ item.public_ip }} groups=ec2hosts
+      loop: "{{ ec2.instances }}"
+
+- hosts: ec2hosts
+  name: configuration play
+  user: ubuntu
+  gather_facts: true
+
+  tasks:
+
+    - name: Ensure nginx package is present
+      apt:
+        name: nginx
+        state: present
+
+    - name: Ensure inxdex.html is present
+      copy:
+        src: index.html
+        dest: /var/www/html
+
+    - name: Ensure nginx service is started
+      service:
+        name: nginx
+        state: started
