@@ -1,7 +1,7 @@
 Playbook for launch instance AWS
-key pair - chmod 400
-/etc/ansible/ansible.conf - host_key_checking = false
-etc/ansible/hosts :
+1)key pair - chmod 400
+2)/etc/ansible/ansible.conf - host_key_checking = false
+3)/etc/ansible/hosts :
 [ec2hosts]
 [ec2hosts:vars]
 ansible_ssh_user=ubuntu
